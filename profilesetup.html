@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freelancer Profile Setup</title>
+    <link rel="stylesheet" href="styles.css"> <!-- You can link to your stylesheet if needed -->
+</head>
+<body>
+
+    <div class="container">
+        <h1>Freelancer Profile Setup</h1>
+        <form id="freelancerProfileForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="fullName">Full Name:</label>
+                <input type="text" id="fullName" name="fullName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="skills">Skills (comma-separated):</label>
+                <input type="text" id="skills" name="skills" required>
+            </div>
+
+            <div class="form-group">
+                <label for="portfolioLink">Portfolio Link:</label>
+                <input type="url" id="portfolioLink" name="portfolioLink" required>
+            </div>
+
+            <div class="form-group">
+                <label for="experience">Years of Experience:</label>
+                <input type="number" id="experience" name="experience" min="0" required>
+            </div>
+
+            <div class="form-group">
+                <label for="availability">Availability:</label>
+                <select id="availability" name="availability" required>
+                    <option value="full-time">Full-time</option>
+                    <option value="part-time">Part-time</option>
+                    <option value="freelance">Freelance</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="bio">Bio:</label>
+                <textarea id="bio" name="bio" rows="4" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="cv">Upload CV:</label>
+                <input type="file" id="cv" name="cv" accept=".pdf, .doc, .docx" required>
+            </div>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <script>
+    
+    
+    
+    
+    
+    const firebaseConfig = {
+          apiKey: "AIzaSyBSigL_KfTlHHcV6NpiD4XvSGUsFh_klwg",
+  authDomain: "joy-projekt.firebaseapp.com",
+  databaseURL: "https://joy-projekt-default-rtdb.firebaseio.com",
+  projectId: "joy-projekt",
+  storageBucket: "joy-projekt.appspot.com",
+  messagingSenderId: "1065590647629",
+  appId: "1:1065590647629:web:0ba5e67001bb80a6e96504",
+  measurementId: "G-GKDNSQ313Y"
+        };
+    
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+       
+    
+
+
+    
+    const form = document.getElementById('MainForm'); // Assuming your form ID is 'MainForm'
+
+        form.addEventListener('submit', async (event) => {
+          event.preventDefault(); // Prevent default form submission
+      
+          const email = form.elements['emailinp'].value;
+          const name = form.elements['fullnameinp'].value;
+          const skills = form.elements['skillinp'].value;
+          const portfolioLink = form.elements['Portfolio Link /github:'].value;
+          const experience = form.elements['Years of Experience'].value;
+          const availability = form.elements['availability'].value;
+          const cvFile = form.elements['cv'].files[0]; // Get the first selected file
+      
+          // Validate inputs (add as needed)
+          if (!email || !name || !skills || !portfolioLink || !experience || !availability || !cvFile) {
+            alert('Please fill in all required fields.');
+            return;
+          }
+      
+          try {
+            // Create a new child in the Realtime Database
+            const newUserDataRef = database.ref('users').push(); // Push creates a new unique ID
+            await newUserDataRef.set({
+              email,
+              name,
+              skills,
+              portfolioLink,
+              experience,
+              availability,
+              cv: cvFile.name // Store only the file name
+            });
+      
+            // Optionally upload the CV file (if allowed by Realtime Database security rules)
+            const storageRef = firebase.storage().ref(`${newUserDataRef.key}/cv`);
+            await storageRef.put(cvFile);
+      
+            alert('Form submitted successfully!');
+            form.reset(); // Clear form fields
+          } catch (error) {
+            console.error('Error adding data: ', error);
+            alert('An error occurred. Please try again later.');
+          }
+        });</script>
+
+</body>
+</html>
